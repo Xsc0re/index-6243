@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vier Gutscheine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Vorderseite – Naturpalette */
+    --kraft: #E7DCC3;
+    --kraft-edge: #D9C9A3;
+    --ink: #2E2418;
+    --forest: #2F4A3B;
+    --moss: #6E8C6A;
+    --rust: #8B4A2B;
+
+    /* Rückseite – Terminal */
+    --term-bg: #10231A;
+    --term-panel: #16301F;
+    --term-text: #CFEAD4;
+    --term-dim: #7FA98A;
+    --term-accent: #E8B84B;
+    --term-line: rgba(207,234,212,0.16);
+
+    --font-serif: 'Fraunces', Georgia, 'Iowan Old Style', serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:#F1E8D6;
+    font-family:var(--font-sans);
+    color:var(--ink);
+    padding:48px 20px 64px;
+  }
+
+  .wrap{ max-width:760px; margin:0 auto; }
+
+  h1{
+    font-family:var(--font-serif);
+    font-weight:600;
+    font-size:clamp(1.6rem, 4vw, 2.1rem);
+    margin:0 0 10px;
+    color:var(--forest);
+  }
+
+  .intro{
+    font-size:1.02rem;
+    line-height:1.5;
+    max-width:46ch;
+    color:var(--ink);
+    margin:0 0 40px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:22px;
+  }
+  @media (max-width:600px){
+    .grid{ grid-template-columns:1fr; }
+  }
+
+  .card{
+    perspective:1400px;
+    aspect-ratio:3/4;
+    cursor:pointer;
+  }
+  .card:focus-visible{ outline:none; }
+  .card:focus-visible .card-inner{
+    outline:3px solid var(--term-accent);
+    outline-offset:5px;
+  }
+
+  .card-inner{
+    position:relative;
+    width:100%;
+    height:100%;
+    transition:transform 0.8s cubic-bezier(.22,.85,.3,1);
+    transform-style:preserve-3d;
+  }
+  .card.flipped .card-inner{ transform:rotateY(180deg); }
+
+  .card-front, .card-back{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ---- Vorderseite: Kraftpapier ---- */
+  .card-front{
+    background:
+      radial-gradient(120% 100% at 15% 0%, #EEE3CB 0%, var(--kraft) 55%),
+      var(--kraft);
+    color:var(--ink);
+    padding:22px 20px 18px;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    box-shadow:0 10px 24px -12px rgba(74,55,25,0.35);
+    clip-path:polygon(
+      1% 3%, 12% 0%, 28% 2%, 45% 0%, 62% 2%, 78% 0%, 92% 2%, 99% 0%,
+      100% 15%, 98% 35%, 100% 55%, 98% 75%, 100% 92%, 99% 100%,
+      85% 98%, 68% 100%, 50% 98%, 32% 100%, 15% 98%, 2% 100%,
+      0% 85%, 2% 65%, 0% 45%, 2% 25%, 0% 10%
+    );
+  }
+
+  .ticket-no{
+    position:absolute;
+    top:16px;
+    right:18px;
+    font-family:var(--font-mono);
+    font-size:0.68rem;
+    letter-spacing:0.02em;
+    color:var(--rust);
+    opacity:0.85;
+  }
+
+  .icon{ color:var(--forest); margin-bottom:10px; }
+  .icon svg{ width:52px; height:52px; display:block; }
+
+  .card-front h2{
+    font-family:var(--font-serif);
+    font-weight:600;
+    font-size:1.5rem;
+    margin:2px 0 6px;
+    color:var(--forest);
+  }
+  .card-front .tagline{
+    font-size:0.92rem;
+    color:var(--moss);
+    margin:0;
+  }
+  .card-front .hint{
+    position:absolute;
+    bottom:16px;
+    left:0; right:0;
+    text-align:center;
+    font-size:0.7rem;
+    color:var(--rust);
+    opacity:0.65;
+  }
+
+  /* ---- Rückseite: Terminal ---- */
+  .card-back{
+    transform:rotateY(180deg);
+    background:var(--term-bg);
+    color:var(--term-text);
+    font-family:var(--font-mono);
+    padding:18px 16px;
+    box-shadow:0 10px 24px -10px rgba(0,0,0,0.5);
+  }
+
+  .term-bar{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding-bottom:10px;
+    margin-bottom:12px;
+    border-bottom:1px solid var(--term-line);
+    font-size:0.72rem;
+    color:var(--term-dim);
+  }
+  .term-bar .dots{ display:flex; gap:4px; margin-right:6px; }
+  .term-bar .dots span{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--term-line);
+  }
+
+  .term-line{ font-size:0.78rem; color:var(--term-dim); margin:0 0 8px; }
+  .term-line.prompt::before{ content:"$ "; color:var(--term-accent); }
+
+  .bar-track{
+    height:6px;
+    background:var(--term-panel);
+    border-radius:2px;
+    overflow:hidden;
+    margin:8px 0 14px;
+  }
+  .bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--term-accent);
+  }
+  .card.flipped .bar-fill{
+    animation:fillBar 0.9s steps(24) forwards;
+  }
+  @keyframes fillBar{ from{ width:0%; } to{ width:100%; } }
+
+  .fields{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:9px; }
+  .field{ font-size:0.76rem; line-height:1.4; }
+  .field .label{ color:var(--term-accent); display:block; letter-spacing:0.02em; }
+  .field .value{ color:var(--term-text); }
+
+  .cursor{
+    display:inline-block;
+    width:7px; height:1em;
+    background:var(--term-accent);
+    vertical-align:text-bottom;
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .card-back .hint{
+    font-size:0.68rem;
+    color:var(--term-dim);
+    margin-top:12px;
+    text-align:center;
+  }
+
+  footer{
+    margin-top:44px;
+    font-size:0.85rem;
+    color:var(--moss);
+    text-align:left;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .card-inner{ transition:none; }
+    .bar-fill, .cursor{ animation:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Vier Dinge, die wir tun sollten</h1>
+  <p class="intro">Kein Buch, keine Pflanze, keine Kerze. Nur vier Karten &ndash; klick eine an, um zu sehen, was sich dahinter versteckt.</p>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>Kein Ablaufdatum. Nur eine Blechdose, die darauf wartet, geöffnet zu werden.</footer>
+</div>
+
+<script>
+/* ============================================================
+   🔧 HIER ANPASSEN
+   - Ersetze [NAME] überall unten mit seinem Namen.
+   - Texte, Sprüche, Daten frei änderbar. Reihenfolge = Kartenreihenfolge.
+   ============================================================ */
+const VOUCHERS = [
+  {
+    id: '01',
+    title: 'Velotour',
+    tagline: 'Irgendwohin radeln, Ziel offen',
+    icon: 'bike',
+    file: 'velotour.sh',
+    fields: [
+      ['AKTIVITÄT', 'Velotour, Ziel offen'],
+      ['TEILNEHMER', 'Du + [NAME]'],
+      ['GÜLTIG', 'Unbegrenzt'],
+      ['EINLÖSEN', 'Schreib: "Sattel auf!"']
+    ]
+  },
+  {
+    id: '02',
+    title: 'Alpaka-Wanderung',
+    tagline: 'Spucken auf eigene Gefahr',
+    icon: 'alpaca',
+    file: 'alpaka.sh',
+    fields: [
+      ['AKTIVITÄT', 'Wanderung mit Alpakas'],
+      ['TEILNEHMER', 'Du + [NAME]'],
+      ['GÜLTIG', 'Unbegrenzt'],
+      ['EINLÖSEN', 'Schreib: "Wolle wetten?"']
+    ]
+  },
+  {
+    id: '03',
+    title: 'Grill & Chill',
+    tagline: 'Mit Shisha, ohne Eile',
+    icon: 'grill',
+    file: 'grillchill.sh',
+    fields: [
+      ['AKTIVITÄT', 'Grill & Chill, Shisha inklusive'],
+      ['TEILNEHMER', 'Du + [NAME]'],
+      ['GÜLTIG', 'Unbegrenzt'],
+      ['EINLÖSEN', 'Schreib: "Kohle glüht"']
+    ]
+  },
+  {
+    id: '04',
+    title: 'Gaming-Abend',
+    tagline: 'Couch, Controller, zwei Spieler',
+    icon: 'controller',
+    file: 'gaming_abend.sh',
+    fields: [
+      ['AKTIVITÄT', 'Gaming-Abend am PC'],
+      ['TEILNEHMER', 'Du + [NAME]'],
+      ['GÜLTIG', 'Unbegrenzt'],
+      ['EINLÖSEN', 'Schreib: "Controller bereit?"']
+    ]
+  }
+];
+
+const ICONS = {
+  bike: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="26" cy="70" r="16"/>
+    <circle cx="74" cy="70" r="16"/>
+    <path d="M26 70 L46 34 L66 70 M46 34 L54 18 M46 34 L34 70 M54 18 L70 18 M66 70 L54 18"/>
+  </svg>`,
+  alpaca: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 88 Q17 66 30 56 Q26 38 42 24 Q48 15 55 20 Q59 25 51 33 Q66 33 74 52 Q82 61 77 74 Q86 79 84 88"/>
+    <line x1="30" y1="82" x2="28" y2="95"/>
+    <line x1="40" y1="84" x2="39" y2="97"/>
+    <line x1="62" y1="85" x2="63" y2="98"/>
+    <line x1="72" y1="82" x2="74" y2="95"/>
+    <line x1="46" y1="19" x2="43" y2="10"/>
+    <line x1="54" y1="18" x2="56" y2="9"/>
+  </svg>`,
+  grill: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M30 82 L74 82 L66 52 L38 52 Z"/>
+    <line x1="40" y1="82" x2="35" y2="95"/>
+    <line x1="64" y1="82" x2="69" y2="95"/>
+    <path d="M45 52 Q50 38 43 28 Q40 19 48 14"/>
+    <path d="M60 52 Q67 34 59 24 Q68 20 63 10"/>
+  </svg>`,
+  controller: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M30 44 Q22 44 20 54 L15 76 Q14 87 24 87 Q31 87 34 78 L38 68 L62 68 L66 78 Q69 87 76 87 Q86 87 85 76 L80 54 Q78 44 70 44 Z"/>
+    <line x1="32" y1="55" x2="32" y2="65"/>
+    <line x1="27" y1="60" x2="37" y2="60"/>
+    <circle cx="70" cy="55" r="3.2" fill="currentColor" stroke="none"/>
+    <circle cx="62" cy="62" r="3.2" fill="currentColor" stroke="none"/>
+  </svg>`
+};
+
+const grid = document.getElementById('grid');
+
+VOUCHERS.forEach(v => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.tabIndex = 0;
+  card.setAttribute('role', 'button');
+  card.setAttribute('aria-pressed', 'false');
+  card.setAttribute('aria-label', `Gutschein ${v.title}: zum Aufdecken drücken`);
+
+  const fieldsHtml = v.fields.map(([label, value]) =>
+    `<div class="field"><span class="label">${label}</span><span class="value">${value}</span></div>`
+  ).join('');
+
+  card.innerHTML = `
+    <div class="card-inner">
+      <div class="card-front">
+        <span class="ticket-no">Nr. ${v.id}</span>
+        <div class="icon">${ICONS[v.icon]}</div>
+        <h2>${v.title}</h2>
+        <p class="tagline">${v.tagline}</p>
+        <span class="hint">Zum Aufdecken antippen</span>
+      </div>
+      <div class="card-back">
+        <div class="term-bar">
+          <span class="dots"><span></span><span></span><span></span></span>
+          ${v.file}
+        </div>
+        <p class="term-line prompt">./${v.file}</p>
+        <div class="bar-track"><div class="bar-fill"></div></div>
+        <div class="fields">${fieldsHtml}</div>
+        <span class="hint">Nochmal tippen zum Umdrehen<span class="cursor"></span></span>
+      </div>
+    </div>
+  `;
+
+  function toggle(){
+    const flipped = card.classList.toggle('flipped');
+    card.setAttribute('aria-pressed', String(flipped));
+  }
+  card.addEventListener('click', toggle);
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+  });
+
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>
